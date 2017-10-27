@@ -28,8 +28,6 @@ def params_unique_combination(baseurl, params_d, private_keys=["api_key"]):
 def search_flickr(search_keys = [], search_method):
     if not FLICKR_API_KEY:
         raise Exception('Flickr API Key is missing!')
-    if not search_keys:
-        raise Exception('Params are missing!')
 
     baseurl = "https://api.flickr.com/services/rest/"
     if search_method == "flickr.photos.search":
@@ -52,6 +50,14 @@ def search_flickr(search_keys = [], search_method):
             "per_page": 10,
             "nojsoncallback": 1
         }
+    else if search_method == "flickr.photos.getPopular":
+        params_diction = {
+            "method": search_method,
+            "format": "json",
+            "api_key": FLICKR_API_KEY,
+            "per_page": 10,
+            "nojsoncallback": 1
+        }
     else:
         raise Exception('Search method is not available')
 
@@ -69,12 +75,13 @@ def search_flickr(search_keys = [], search_method):
 
 class Photo:
     def __init__(self, photo_dict):
-        self.title = photo_dict['title']
+        self.title = photo_dict['title']['_content']
         self.id = photo_dict['id']
-        self.owner = photo_dict['owner']
+        self.owner_username = photo_dict['owner']['username']
+
 
     def __str__(self):
-        return '{0} by {1}'.format(self.title, self.owner)
+        return '{0} by {1}'.format(self.title, self.owner_username)
 
 
 CACHE_DICTION = load_cache_json()
