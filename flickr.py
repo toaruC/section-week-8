@@ -25,19 +25,35 @@ def params_unique_combination(baseurl, params_d, private_keys=["api_key"]):
             res.append("{}-{}".format(k, params_d[k]))
     return baseurl + "_".join(res)
 
-def search_flickr_by_tags(tags):
+def search_flickr(search_keys = [], search_method):
     if not FLICKR_API_KEY:
         raise Exception('Flickr API Key is missing!')
+    if not search_keys:
+        raise Exception('Params are missing!')
 
     baseurl = "https://api.flickr.com/services/rest/"
-    params_diction = {
-        "method": "flickr.photos.search",
-        "format": "json",
-        "api_key": FLICKR_API_KEY,
-        "tags": tags,
-        "per_page": 10,
-        "nojsoncallback": 1
-    }
+    if search_method == "flickr.photos.search":
+        tags = search_keys["tags"]
+        params_diction = {
+            "method": search_method,
+            "format": "json",
+            "api_key": FLICKR_API_KEY,
+            "tags": tags,
+            "per_page": 10,
+            "nojsoncallback": 1
+        }
+    else if search_method == "flickr.photos.getInfo":
+        photo_id = search_keys["photoset_id"]
+        params_diction = {
+            "method": search_method,
+            "format": "json",
+            "api_key": FLICKR_API_KEY,
+            "photo_id": photo_id,
+            "per_page": 10,
+            "nojsoncallback": 1
+        }
+    else:
+        raise Exception('Search method is not available')
 
     unique_ident = params_unique_combination(baseurl,params_diction)
     if unique_ident in CACHE_DICTION:
